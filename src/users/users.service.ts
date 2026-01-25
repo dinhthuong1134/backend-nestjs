@@ -34,6 +34,16 @@ export class UsersService {
     })
   }
 
+  async isUser(email: string) {
+    return await this.userModel.findOne({
+      email: email
+    })
+  }
+
+  async isPassWord(password: string, hash: string) {
+    return bcrypt.compareSync(password, hash);
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     return await this.userModel.updateOne({_id: id}, {...updateUserDto});
   }
