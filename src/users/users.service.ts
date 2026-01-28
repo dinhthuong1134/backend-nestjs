@@ -23,14 +23,14 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.userModel.find();
   }
 
   async findOne(id: string) {
-    if(!mongoose.Types.ObjectId.isValid(id)) return "không tìm thấy user này";
+    if(!mongoose.Types.ObjectId.isValid(id) ) return {message: "Không tìm thấy user này"};
     return await this.userModel.findOne({
-      _id: id
+      _id: id,
     })
   }
 
@@ -49,7 +49,7 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    if(!mongoose.Types.ObjectId.isValid(id)) return "không tìm thấy user này";
+    if(!mongoose.Types.ObjectId.isValid(id)) return {message: "Không tìm thấy user này"};
     return await this.userModel.deleteOne({_id: id});
   }
 }
