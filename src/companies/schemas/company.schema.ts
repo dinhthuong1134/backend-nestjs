@@ -1,38 +1,19 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { Company } from 'src/companies/schemas/company.schema';
 
-export type UserDocument = HydratedDocument<User>;
+export type CompanyDocument = HydratedDocument<Company>;
 
 @Schema({ timestamps: true }) // tự động cập nhật createdAt và updatedAt
-export class User {
+export class Company {
     @Prop()
     name: string;
-
-    @Prop({ required: true })
-    email: string;
-
-    @Prop({ required: true })
-    password: string;
-
-    @Prop()
-    age: number;
-
-    @Prop()
-    gender: string;
-
-    @Prop()
-    company: Company;
 
     @Prop()
     address: string;
 
     @Prop()
-    role: string;
-
-    @Prop()
-    refreshToken: string;
+    description: string;
 
     @Prop()
     createdAt: Date;
@@ -61,7 +42,6 @@ export class User {
         _id: string,
         email: string
     }
-
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const CompanySchema = SchemaFactory.createForClass(Company);

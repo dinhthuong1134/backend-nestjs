@@ -7,28 +7,43 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { CompaniesModule } from './companies/companies.module';
+import { JobsModule } from './jobs/jobs.module';
+import { FilesModule } from './files/files.module';
+import MongooseDelete from 'mongoose-delete';
 
 @Module({
   imports: [ConfigModule.forRoot({
     isGlobal: true,
   }),
   MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('URL'),
-      }),
-      inject: [ConfigService],
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+      uri: configService.get<string>('URL'),
+      connectionFactory: (connection) => {
+        // Cấu hình để tự động lọc bỏ các bản ghi đã xóa (isDeleted: true)
+        connection.plugin(MongooseDelete, {
+          overrideMethods: 'all',
+          deletedAt: true,
+        });
+        return connection;
+      }
     }),
-    AuthModule,     
+    inject: [ConfigService],
+  }),
+    AuthModule,
     UsersModule,
-],
+    CompaniesModule,
+    JobsModule,
+    FilesModule,
+  ],
   controllers: [AppController],
   providers: [
-    AppService, 
+    AppService,
     {
-    provide: APP_GUARD,
-    useClass: JwtAuthGuard,
-  },
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule { }
