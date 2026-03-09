@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { CompaniesModule } from './companies/companies.module';
 import { JobsModule } from './jobs/jobs.module';
 import { FilesModule } from './files/files.module';
+import { ResumesModule } from './resumes/resumes.module';
 import MongooseDelete from 'mongoose-delete';
 
 @Module({
@@ -36,6 +37,8 @@ import MongooseDelete from 'mongoose-delete';
     CompaniesModule,
     JobsModule,
     FilesModule,
+    ResumesModule,
+    ResumesModule,
   ],
   controllers: [AppController],
   providers: [

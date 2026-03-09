@@ -11,7 +11,9 @@ import aqp from 'api-query-params';
 @Injectable()
 export class CompaniesService {
 
-  constructor(@InjectModel(Company.name) private companyModel: SoftDeleteModel<CompanyDocument>) { }
+  constructor(
+    @InjectModel(Company.name) private companyModel: SoftDeleteModel<CompanyDocument>,
+) { }
 
   async create(createCompanyDto: CreateCompanyDto, user: IUser) {
     return await this.companyModel.create({

@@ -27,6 +27,9 @@ export class Company {
     @Prop()
     deletedAt: Date;
 
+    @Prop()
+    logo: string;
+
     @Prop({ type: Object })
     createdBy: {
         _id: string,
