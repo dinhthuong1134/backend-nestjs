@@ -105,6 +105,10 @@ export class UsersService {
 
   async remove(id: string, user: IUser) {
     if(!mongoose.Types.ObjectId.isValid(id)) return {message: "Không tìm thấy user này"};
+    const foundUser = await this.userModel.findById(id);
+    if(foundUser?.role === "admin@gmail.com"){
+      throw new BadRequestException("không thể xoá admin");
+    }
     await this.userModel.updateOne(
       {_id: id},
       {

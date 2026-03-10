@@ -92,7 +92,18 @@ export class ResumesService {
   }
 
   async getOneResume(id: string){
-    return await this.resumeModel.findById(id);
+    return await this.resumeModel.findById(id)
+      .sort("-createAt")
+      .populate([
+        {
+          path: "companyId",
+          select: {name: 1}
+        },
+        {
+          path: "jobId",
+          select: {name: 1}
+        }
+      ])
   }
 
   async deleteOneResume(user: IUser, id: string){
