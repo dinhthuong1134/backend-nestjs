@@ -3,7 +3,7 @@ import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import type { IUser } from 'src/users/users.interface';
-import { Public, ResponseMessage, User } from 'src/users/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/core/decorator/customize';
 
 @Controller('jobs')
 export class JobsController {

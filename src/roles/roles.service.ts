@@ -7,6 +7,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import aqp from 'api-query-params';
 import { identity } from 'rxjs';
+import { ADMIN_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class RolesService {
@@ -32,10 +33,6 @@ export class RolesService {
   }
 
   async updateRole(id: string, user: IUser, role: UpdateRoleDto) {
-    let isName = await this.roleModel.findOne({ name: role.name });
-    if (isName) {
-      throw new BadRequestException(`role với name = ${role.name} này đã tồn tại`)
-    }
     return await this.roleModel.updateOne({ _id: id }, {
       ...role,
       updatedBy: {
@@ -85,7 +82,7 @@ export class RolesService {
 
   async deleteOneRole(id: string, user: IUser) {
     const foundRole = await this.roleModel.findById(id);
-    if(foundRole?.name === "ADMIN"){
+    if(foundRole?.name === ADMIN_ROLE){
       throw new BadRequestException("không thể xoá role admin")
     }
     await this.roleModel.updateOne({ _id: id }, {

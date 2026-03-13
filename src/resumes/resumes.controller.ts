@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ResumesService } from './resumes.service';
-import { Public, ResponseMessage, User } from 'src/users/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/core/decorator/customize';
 import type { IUser } from 'src/users/users.interface';
 import { CreateCvResumeDto } from './dto/create-resume.dto';
 

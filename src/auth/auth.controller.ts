@@ -1,16 +1,18 @@
 import { Body, Controller, Get, Post, Req, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public, ResponseMessage, User } from 'src/users/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/core/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import type { Response } from 'express';
 import type { IUser } from 'src/users/users.interface';
+import { RolesService } from 'src/roles/roles.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
+    private roleService: RolesService,
   ) {}
 
   @Public() 
@@ -36,7 +38,9 @@ export class AuthController {
 
   @ResponseMessage("Get user information")
   @Get('/account')
-  handleGetAccount(@User() user: IUser){
+  async handleGetAccount(@User() user: IUser){
+    const result = await this.roleService.getOneRole(user._id);
+    user.permissions = result?.permissions as any;
     return {user};
   }
 

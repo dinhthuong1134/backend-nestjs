@@ -8,12 +8,16 @@ import bcrypt from "bcryptjs";
 import type { SoftDeleteModel } from 'mongoose-delete';
 import type { IUser } from './users.interface';
 import aqp from 'api-query-params';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
+import { USER_ROLE } from 'src/databases/sample';
 
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>) {}
-  
+  constructor(@InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>
+  ) { }
+
   hashPassword = (password: string) => {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
@@ -30,37 +34,38 @@ export class UsersService {
   }
 
   async register(data: RegisterUserDto) {
+    const roleUser = await this.roleModel.findOne({name: USER_ROLE})
     const hashPassword = this.hashPassword(data.password);
     let user = await this.userModel.create({
-        email: data.email,
-        password: hashPassword,
-        name: data.name,
-        age: data.age,
-        gender: data.gender,
-        address: data.address,
-        role: 'User'
+      email: data.email,
+      password: hashPassword,
+      name: data.name,
+      age: data.age,
+      gender: data.gender,
+      address: data.address,
+      role:  roleUser?._id
     })
     return {
-        _id: user?._id,
-        createAt: user?.createdAt
+      _id: user?._id,
+      createAt: user?.createdAt
     }
     // Nên chuyển sang userService để làm
-}
+  }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const {filter, sort, population} = aqp(qs);
+    const { filter, sort, population } = aqp(qs);
     delete filter.page;
     delete filter.limit;
-    let offset = (currentPage - 1)*limit;
+    let offset = (currentPage - 1) * limit;
     let defaultLimit = limit ? limit : 10;
     let totalCompany = (await this.userModel.find(filter)).length;
-    let totalPage = Math.ceil(totalCompany/defaultLimit);
+    let totalPage = Math.ceil(totalCompany / defaultLimit);
     const result = await this.userModel.find(filter)
-        .skip(offset)
-        .limit(defaultLimit)
-        .sort(sort as any)
-        .populate(population)
-        .exec()
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .populate(population)
+      .exec()
     return {
       meta: {
         current: currentPage,
@@ -73,16 +78,17 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    if(!mongoose.Types.ObjectId.isValid(id) ) return {message: "Không tìm thấy user này"};
+    if (!mongoose.Types.ObjectId.isValid(id)) return { message: "Không tìm thấy user này" };
     return await this.userModel.findOne({
       _id: id,
-    }).select("-password");
+    }).select("-password")
+      .populate({ path: "role", select: { name: 1} })
   }
 
-  async isUser(email: string) {
+  async isUser(email: string) { 
     return await this.userModel.findOne({
       email: email
-    })
+    }).populate({ path: "role", select: { name: 1, permission: 1 } });
   }
 
   async isPassWord(password: string, hash: string) {
@@ -91,10 +97,10 @@ export class UsersService {
 
   async update(data: UpdateUserDto, user: IUser) {
     const updated = await this.userModel.updateOne(
-      {_id: data._id},
+      { _id: data._id },
       {
         ...data,
-        updatedBy : {
+        updatedBy: {
           _id: user._id,
           email: user.email
         }
@@ -104,13 +110,13 @@ export class UsersService {
   }
 
   async remove(id: string, user: IUser) {
-    if(!mongoose.Types.ObjectId.isValid(id)) return {message: "Không tìm thấy user này"};
+    if (!mongoose.Types.ObjectId.isValid(id)) return { message: "Không tìm thấy user này" };
     const foundUser = await this.userModel.findById(id);
-    if(foundUser?.role === "admin@gmail.com"){
+    if (foundUser?.email === "admin@gmail.com") {
       throw new BadRequestException("không thể xoá admin");
     }
     await this.userModel.updateOne(
-      {_id: id},
+      { _id: id },
       {
         deletedBy: {
           _id: user._id,
@@ -118,11 +124,11 @@ export class UsersService {
         }
       }
     )
-    return await this.userModel.delete({_id: id});
+    return await this.userModel.delete({ _id: id });
   }
-  async createUser(data: CreateUserDto, user: IUser){
-    const isEmailExist = await this.userModel.findOne({email: data.email});
-    if(isEmailExist){
+  async createUser(data: CreateUserDto, user: IUser) {
+    const isEmailExist = await this.userModel.findOne({ email: data.email });
+    if (isEmailExist) {
       throw new BadRequestException(`email ${data.email} này đã tồn tại`);
     }
 
@@ -149,13 +155,13 @@ export class UsersService {
   }
   updateToken = async (refreshToken: string | null, _id: string) => {
     return await this.userModel.updateOne(
-      {_id},
-      {refreshToken}
+      { _id },
+      { refreshToken }
     )
   }
 
   findUserByRefreshToken = async (refreshToken: string) => {
-    let user = await this.userModel.findOne({refreshToken});
-    return user;
+    let user = await this.userModel.findOne({ refreshToken });
+    return user?.populate({path: "role", select: {name: 1}});
   }
 }

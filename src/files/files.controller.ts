@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Upl
 import { FilesService } from './files.service';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public, ResponseMessage } from 'src/users/decorator/customize';
+import { Public, ResponseMessage } from 'src/core/decorator/customize';
 
 @Controller('files')
 export class FilesController {

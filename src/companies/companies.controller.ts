@@ -3,7 +3,7 @@ import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import type { IUser } from 'src/users/users.interface';
-import { ResponseMessage, User } from 'src/users/decorator/customize';
+import { ResponseMessage, User } from 'src/core/decorator/customize';
 
 @Controller('companies')
 export class CompaniesController {

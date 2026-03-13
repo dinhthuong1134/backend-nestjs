@@ -60,7 +60,7 @@ export class ResumesService {
   }
 
   async getAllResume(currentPage: number, limit: number, qs: string) {
-    const { filter, sort, population, projection} = aqp(qs);
+    const { filter, sort, population, projection } = aqp(qs);
 
     delete filter.current;
     delete filter.pageSize;
@@ -91,38 +91,38 @@ export class ResumesService {
     };
   }
 
-  async getOneResume(id: string){
+  async getOneResume(id: string) {
     return await this.resumeModel.findById(id)
-      .sort("-createAt")
-      .populate([
-        {
-          path: "companyId",
-          select: {name: 1}
-        },
-        {
-          path: "jobId",
-          select: {name: 1}
-        }
-      ])
   }
 
-  async deleteOneResume(user: IUser, id: string){
+  async deleteOneResume(user: IUser, id: string) {
     const isResume = await this.resumeModel.findById(id);
-    if(!isResume){
+    if (!isResume) {
       throw new BadRequestException("Cv này không tồn tại");
     }
-    await this.resumeModel.updateOne({_id: id}, {
+    await this.resumeModel.updateOne({ _id: id }, {
       deletedBy: {
         _id: user._id,
         email: user.email
       }
     })
-    await this.resumeModel.delete({_id: id});
+    await this.resumeModel.delete({ _id: id });
   }
 
-  async getJobsByUser(user: IUser){
+  async getJobsByUser(user: IUser) {
     return this.resumeModel.find({
       userId: user._id,
     })
+      .sort("-createAt")
+      .populate([
+        {
+          path: "companyId",
+          select: { name: 1 }
+        },
+        {
+          path: "jobId",
+          select: { name: 1 }
+        }
+      ])
   }
 }

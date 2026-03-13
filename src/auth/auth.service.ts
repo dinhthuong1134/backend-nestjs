@@ -6,20 +6,28 @@ import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
 import ms from "ms";
+import { RolesService } from 'src/roles/roles.service';
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
         private configService: ConfigService,
+        private roleService: RolesService
     ) { }
 
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.isUser(username);
         if (user) {
             const checkPassWord = await this.usersService.isPassWord(pass, user.password);
+            const userRole = user.role as unknown as {_id: string, name: string};
+            const result = await this.roleService.getOneRole(userRole._id);
             if (checkPassWord === true) {
-                return user;
+                const objectUser = {
+                    ...user.toObject(),
+                    permissions: result?.permissions ?? []
+                }
+                return objectUser;
             }
         }
         return null;
@@ -46,7 +54,8 @@ export class AuthService {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                permissions: user.permissions
             }
         };
     }

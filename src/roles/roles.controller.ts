@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { ResponseMessage, User } from 'src/users/decorator/customize';
+import { ResponseMessage, User } from 'src/core/decorator/customize';
 import type { IUser } from 'src/users/users.interface';
 
 @Controller('roles')
@@ -38,5 +38,4 @@ export class RolesController {
   handleDeleteOneRole(@Param('id') id: string, @User() user: IUser){
     return this.rolesService.deleteOneRole(id, user);
   }
-
 }
